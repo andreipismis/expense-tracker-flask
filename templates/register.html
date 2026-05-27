@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Înregistrare - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-form-panel">
+            <h2 style="margin-bottom: 10px;">Creează un cont</h2>
+            <p style="color: var(--text-light); margin-bottom: 30px;">Începe să îți gestionezi bugetul inteligent astăzi.</p>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class="flash-messages">
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/register" style="box-shadow: none; padding: 0; background: transparent; margin-bottom: 20px;">
+                <label>Username:</label>
+                <input type="text" name="username" required placeholder="Alege un nume de utilizator">
+
+                <label>Email:</label>
+                <input type="email" name="email" required placeholder="nume@exemplu.com">
+
+                <label>Parolă:</label>
+                <input type="password" name="password" required placeholder="••••••••">
+
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; margin-bottom: 20px;">
+                    <input type="checkbox" required style="width: auto; margin: 0; cursor: pointer;">
+                    <span>Accept <a href="#">Termenii și Condițiile</a></span>
+                </label>
+
+                <button type="submit">Înregistrare</button>
+            </form>
+
+            <p style="text-align: center; font-size: 0.9rem;">
+                Ai deja un cont? <a href="/login">Loghează-te aici.</a>
+            </p>
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="/" style="font-size: 0.85rem; color: var(--text-light);">← Înapoi pe pagina principală</a>
+            </p>
+        </div>
+
+        <div class="auth-image-panel">
+            <img src="{{ url_for('static', filename='register_illustration.svg') }}" alt="Înregistrare" class="auth-svg">
+            <h2 class="auth-greeting">Alătură-te nouă!</h2>
+            <p class="auth-description">
+                Preluarea controlului asupra banilor tăi nu a fost niciodată mai simplă. Creează-ți contul gratuit și obține o evidență clară a veniturilor și cheltuielilor tale.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

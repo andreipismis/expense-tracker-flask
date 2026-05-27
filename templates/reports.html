@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapoarte - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Expense<span>Tracker</span></h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item">📊 Dashboard</a>
+            <a href="/reports" class="nav-item active">📈 Rapoarte</a>
+            <div class="nav-spacer"></div>
+            <a href="/logout" class="nav-item logout" onclick="return confirm('Ești sigur că vrei să te deconectezi?')">🚪 Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="main-header">
+            <div class="header-user">
+                <h1>Analiză Financiară 📈</h1>
+                <p>Vizualizează distribuția banilor tăi în perioada selectată.</p>
+            </div>
+        </header>
+
+        <section class="filter-section">
+            <form method="POST" action="/reports" class="filter-card">
+                <div class="filter-inputs">
+                    <div class="input-group">
+                        <label>De la:</label>
+                        <input type="date" name="start_date" value="{{ start_date }}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Până la:</label>
+                        <input type="date" name="end_date" value="{{ end_date }}" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-filter">Actualizează Raport</button>
+            </form>
+        </section>
+
+        <div class="stats-grid">
+            <div class="stat-card income">
+                <small>Total Venituri</small>
+                valoare: <h3>+{{ "%.2f"|format(total_income) }} RON</h3>
+            </div>
+            <div class="stat-card expense">
+                <small>Total Cheltuieli</small>
+                valoare: <h3>-{{ "%.2f"|format(total_expense) }} RON</h3>
+            </div>
+            <div class="stat-card net">
+                <small>Balanță Netă</small>
+                valoare: <h3 style="color: var(--text-dark);">{{ "%.2f"|format(total_income - total_expense) }} RON</h3>
+            </div>
+        </div>
+
+        <div class="reports-tables-grid">
+            <section class="report-table-container">
+                <h3>Venituri pe Categorii</h3>
+                {% if budgets or income_category_totals %}
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Categorie / Sursă</th>
+                            <th style="text-align: right;">Sumă</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in budgets %}
+                        <tr>
+                            <td>
+                                <span class="dot" style="background-color: #a8dadc;"></span>
+                                <strong>Pornire:</strong> {{ b.name }}
+                            </td>
+                            <td class="v-plus" style="text-align: right;">+{{ "%.2f"|format(b.initial_balance) }} RON</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for category, amount in income_category_totals.items() %}
+                        <tr>
+                            <td><span class="dot income-dot"></span> {{ category }}</td>
+                            <td class="v-plus" style="text-align: right;">+{{ "%.2f"|format(amount) }} RON</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state-report">Niciun venit sau buget găsit.</div>
+                {% endif %}
+            </section>
+
+            <section class="report-table-container">
+                <h3>Cheltuieli pe Categorii</h3>
+                {% if expense_category_totals %}
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Categorie</th>
+                            <th style="text-align: right;">Sumă Cheltuită</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category, amount in expense_category_totals.items() %}
+                        <tr>
+                            <td><span class="dot expense-dot"></span> {{ category }}</td>
+                            <td class="v-minus" style="text-align: right;">-{{ "%.2f"|format(amount) }} RON</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state-report">Nicio cheltuială găsită în această perioadă.</div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+</body>
+</html>

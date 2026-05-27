@@ -1,0 +1,15 @@
+# Medii virtuale
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Baza de date și fișiere locale
+instance/
+*.db
+*.sqlite3
+
+# Fișiere de configurare IDE (PyCharm)
+.idea/

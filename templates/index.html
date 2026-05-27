@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker - Acasă</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome to Expense Tracker</h1>
+            <p class="hero-description">
+                Preia controlul asupra finanțelor tale. Monitorizează-ți bugetul zilnic,
+                analizează-ți cheltuielile și economisește inteligent printr-o interfață simplă și clară.
+            </p>
+            <div class="hero-buttons">
+                <a href="/login" class="btn btn-primary">Autentificare</a>
+                <a href="/register" class="btn btn-secondary">Înregistrare</a>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='illustration.svg') }}" alt="Ilustratie Expense Tracker">
+        </div>
+    </div>
+</body>
+</html>

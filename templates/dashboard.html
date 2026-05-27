@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Expense<span>Tracker</span></h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item active">📊 Dashboard</a>
+            <a href="/reports" class="nav-item">📈 Rapoarte</a>
+            <div class="nav-spacer"></div>
+            <a href="/logout" class="nav-item logout" onclick="return confirm('Ești sigur că vrei să te deconectezi?')">🚪 Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="main-header">
+            <div class="header-user">
+                <h1>Bună, {{ current_user.username }}! 👋</h1>
+                <p>Gestionează-ți portofoliul și monitorizează tranzacțiile zilnice.</p>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flash-messages" id="flash-container">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <div class="dashboard-grid">
+            <section class="budgets-section">
+                <h3>Portofoliul tău</h3>
+                <div class="budgets-grid">
+                    {% for budget in budgets %}
+                    <div class="budget-card">
+                        <a href="{{ url_for('delete_budget', budget_id=budget.id) }}"
+                           class="delete-budget-btn"
+                           onclick="return confirm('Confirmați ștergerea Bugetului {{ budget.name }}? Toate tranzacțiile vor fi pierdute definitiv.')">×</a>
+
+                        <div class="budget-header">
+                            <div class="budget-title-area">
+                                <h4>{{ budget.name }} <small class="initial-label">(Inițial: {{ "%.2f"|format(budget.initial_balance) }} RON)</small></h4>
+                                <p class="member-list">
+                                    👥 {% for u in budget.users %}{{ u.username }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="budget-amount">{{ "%.2f"|format(budget.balance) }} <span>RON</span></div>
+
+                        <div class="recent-transactions">
+                            <h5>Ultimele activități</h5>
+                            {% if budget.transactions %}
+                                <ul class="transaction-list">
+                                {% for t in (budget.transactions|sort(attribute='date', reverse=True))[:4] %}
+                                    <li class="t-item">
+                                        <div class="t-info">
+                                            <span class="t-name">{{ t.name }}</span>
+                                            <small>{{ t.category }}</small>
+                                        </div>
+                                        <div class="t-actions">
+                                            <span class="t-value {% if t.transaction_type == 'Venit' %}v-plus{% else %}v-minus{% endif %}">
+                                                {% if t.transaction_type == 'Venit' %}+{% else %}-{% endif %}{{ t.amount }}
+                                            </span>
+                                            <a href="{{ url_for('delete_transaction', transaction_id=t.id) }}"
+                                               class="t-delete"
+                                               onclick="return confirm('Confirmați ștergerea tranzacției {{ t.name }}?')">×</a>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="empty-state">Nicio tranzacție înregistrată.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-dashboard">
+                        <p>Nu ai creat încă niciun buget. Folosește formularul din dreapta pentru a începe.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <aside class="actions-section">
+                <div class="action-card">
+                    <h3>Tranzacție Nouă</h3>
+                    {% if budgets %}
+                    <form method="POST" action="/add_transaction" class="compact-form">
+                        <select name="budget_id" required>
+                            <option value="" disabled selected>Alege Bugetul</option>
+                            {% for budget in budgets %}
+                                <option value="{{ budget.id }}">{{ budget.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="name" placeholder="Descriere (ex: Factură curent)" required>
+                        <div class="form-row">
+                            <select name="transaction_type" required>
+                                <option value="Cheltuială">Cheltuială</option>
+                                <option value="Venit">Venit</option>
+                            </select>
+                            <input type="number" step="0.01" name="amount" placeholder="Sumă" required>
+                        </div>
+                        <input type="text" name="category" placeholder="Categorie">
+                        <input type="date" name="date" id="currentDate" required>
+                        <button type="submit">Înregistrează</button>
+                    </form>
+                    {% else %}
+                    <p class="info-text">Trebuie să creezi un buget înainte de a adăuga tranzacții.</p>
+                    {% endif %}
+                </div>
+
+                <div class="action-card">
+                    <h3>Buget Nou</h3>
+                    <form method="POST" action="/add_budget" class="compact-form">
+                        <input type="text" name="name" placeholder="Nume Buget (ex: Personal)" required>
+                        <input type="number" step="0.01" name="balance" placeholder="Sold Inițial" required>
+
+                        <div class="user-stack-input">
+                            <input type="text" id="new-username" placeholder="Adaugă membru">
+                            <button type="button" onclick="checkAndAddUser()">+</button>
+                        </div>
+                        <div id="users-stack" class="tags-container"></div>
+                        <div id="hidden-inputs-container"></div>
+
+                        <button type="submit" class="btn-alt">Creează Buget</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        // Setăm data de azi automat în formular
+        document.getElementById('currentDate').valueAsDate = new Date();
+
+        // Logica pentru dispariția mesajelor Flash după 5 secunde
+        setTimeout(function() {
+            const flashContainer = document.getElementById('flash-container');
+            if (flashContainer) {
+                flashContainer.style.transition = "opacity 0.8s ease";
+                flashContainer.style.opacity = "0";
+                setTimeout(() => flashContainer.remove(), 800);
+            }
+        }, 5000);
+
+        // Logică (AJAX)
+        let addedUsers = new Set();
+        function checkAndAddUser() {
+            let inputField = document.getElementById('new-username');
+            let username = inputField.value.trim();
+            if (username === '' || addedUsers.has(username)) return;
+
+            fetch('/check_user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 'username': username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    let stack = document.getElementById('users-stack');
+                    let tag = document.createElement('span');
+                    tag.className = 'user-tag';
+                    tag.innerHTML = `${username} <small onclick="removeUserTag(this, '${username}')">x</small>`;
+                    stack.appendChild(tag);
+
+                    let hiddenContainer = document.getElementById('hidden-inputs-container');
+                    let hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'shared_with';
+                    hiddenInput.id = 'hidden-' + username;
+                    hiddenInput.value = username;
+                    hiddenContainer.appendChild(hiddenInput);
+
+                    addedUsers.add(username);
+                    inputField.value = '';
+                } else {
+                    alert("Eroare: " + data.error);
+                }
+            });
+        }
+
+        function removeUserTag(element, username) {
+            element.parentElement.remove();
+            document.getElementById('hidden-' + username).remove();
+            addedUsers.delete(username);
+        }
+    </script>
+</body>
+</html>

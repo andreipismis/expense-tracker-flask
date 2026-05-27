@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autentificare - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        <div class="auth-form-panel">
+            <h2 style="margin-bottom: 10px;">Autentificare</h2>
+            <p style="color: var(--text-light); margin-bottom: 30px;">Introdu datele pentru a-ți accesa contul.</p>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class="flash-messages">
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/login" style="box-shadow: none; padding: 0; background: transparent; margin-bottom: 20px;">
+                <label>Email:</label>
+                <input type="email" name="email" required placeholder="nume@exemplu.com">
+
+                <label>Parolă:</label>
+                <input type="password" name="password" required placeholder="••••••••">
+
+                <button type="submit">Log in</button>
+            </form>
+
+            <p style="text-align: center; font-size: 0.9rem;">
+                Nu ai cont? <a href="/register">Înregistrează-te aici.</a>
+            </p>
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="/" style="font-size: 0.85rem; color: var(--text-light);">← Înapoi pe pagina principală</a>
+            </p>
+        </div>
+
+        <div class="auth-image-panel">
+            <img src="{{ url_for('static', filename='login_illustration.svg') }}" alt="Autentificare" class="auth-svg">
+            <h2 class="auth-greeting">Bine ai revenit!</h2>
+            <p class="auth-description">
+                Ne bucurăm să te revedem. Accesează-ți dashboard-ul pentru a continua să iei decizii financiare inteligente și să-ți urmărești progresul.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
