@@ -32,7 +32,9 @@ Urmează acești pași pentru a rula aplicația pe mașina ta locală:
 
 
 1\. Clonează repository-ul:
+
 `git clone https://github.com/NUMELE\_TAU/expense-tracker-flask.git`
+
 `cd expense-tracker-flask`
 
 
@@ -40,23 +42,29 @@ Urmează acești pași pentru a rula aplicația pe mașina ta locală:
 2\. Creează și activează un mediu virtual:
 
 Pe Windows:
+
 `python -m venv venv`
+
 `venv\\Scripts\\activate`
 
 
 
 Pe macOS/Linux:
+
 `python3 -m venv venv`
+
 `source venv/bin/activate`
 
 
 
 3\. Instalează dependențele:
+
 `pip install -r requirements.txt`
 
 
 
 4\. Rulează aplicația:
+
 `python app.py`
 
 
